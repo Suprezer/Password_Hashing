@@ -13,7 +13,7 @@ public class DbUser {
     DbConnection dbConnection = new DbConnection();
 
     public void createUser(User user){
-        Connection con = dbConnection.getConnection();
+        Connection con = dbConnection.getConnectionFromPool();
 
         if (con != null) {
             try{
@@ -43,7 +43,7 @@ public class DbUser {
     }
 
     public boolean deleteUser(User user){
-        Connection con = dbConnection.getConnection();
+        Connection con = dbConnection.getConnectionFromPool();
 
         if (con != null) {
             try{
@@ -87,7 +87,7 @@ public class DbUser {
     }
 
     public boolean verifyUserLogin(User user){
-        Connection con = dbConnection.getConnection();
+        Connection con = dbConnection.getConnectionFromPool();
 
         if (con != null) {
             try{
