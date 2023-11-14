@@ -1,6 +1,7 @@
 package org.example.view;
 
-import org.example.database.DbUser;
+import org.example.controller.UserController;
+import org.example.model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GUI implements ActionListener {
+    private UserController userController;
+
     JButton loginButton;
     JButton createUserButton;
     JButton deleteUserButton;
@@ -79,10 +82,13 @@ public class GUI implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        DbUser user = new DbUser();
+        userController = new UserController();
+
         String username = usernameField.getText();
         char[] charPassword = passwordField.getPassword();
         String password = new String(charPassword);
+
+        User user = new User(username, password);
 
         if (passwordRadio.isSelected()){
             passwordField.setEchoChar((char)0);
@@ -91,19 +97,20 @@ public class GUI implements ActionListener {
         }
 
         if (e.getSource() == loginButton) {
-            if (user.verifyUserLogin(username, password)) {
+            if (userController.verifyUserLogin(user)) {
                 System.out.println("Successfully logged in");
             } else {
                 System.out.println("Could not login");
             }
-        }
-
-        if (e.getSource() == deleteUserButton) {
-            user.deleteUser(username, password);
-        }
-
-        if (e.getSource() == createUserButton) {
-            user.createUser(username, password);
+        } else if (e.getSource() == deleteUserButton) {
+            if (userController.deleteUser(user)) {
+                System.out.println("User deleted successfully");
+            } else {
+                System.out.println("Error deleting user");
+            }
+        } else if (e.getSource() == createUserButton) {
+            userController.createUser(user);
+            System.out.println("User created successfully");
         }
     }
 }

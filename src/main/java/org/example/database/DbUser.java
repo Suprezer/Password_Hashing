@@ -1,5 +1,7 @@
 package org.example.database;
 
+import org.example.model.User;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -10,7 +12,7 @@ import java.sql.PreparedStatement;
 public class DbUser {
     DbConnection dbConnection = new DbConnection();
 
-    public void createUser(String username, String password){
+    public void createUser(User user){
         Connection con = dbConnection.getConnection();
 
         if (con != null) {
@@ -20,15 +22,15 @@ public class DbUser {
                 // Execution of SQL Query
                 PreparedStatement createUserStatement = con.prepareStatement(createUserSql);
                 // Setting up parameter values
-                createUserStatement.setString(1, username);
-                createUserStatement.setString(2, hashPassword(password)); // Hashes the password before insertion
+                createUserStatement.setString(1, user.getUsername());
+                createUserStatement.setString(2, hashPassword(user.getPassword())); // Hashes the password before insertion
                 // Saves the rows affected for checking
                 int rowsAffected = createUserStatement.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    System.out.println("User "+ username + " was succesfully created");
+                    System.out.println("User "+ user.getUsername() + " was succesfully created");
                 } else {
-                    System.out.println("Failed to create the following user: " + username+ " with the following passowrd: " + password);
+                    System.out.println("Failed to create the following user: " + user.getUsername()+ " with the following passowrd: " + user.getPassword());
                 }
 
                 createUserStatement.close();
@@ -40,23 +42,23 @@ public class DbUser {
         }
     }
 
-    public boolean deleteUser(String username, String password){
+    public boolean deleteUser(User user){
         Connection con = dbConnection.getConnection();
 
         if (con != null) {
             try{
                 String checkUserSql = "SELECT password FROM [User] WHERE username = ?";
                 PreparedStatement checkUserStatement = con.prepareStatement(checkUserSql);
-                checkUserStatement.setString(1, username);
+                checkUserStatement.setString(1, user.getUsername());
                 ResultSet resultSet = checkUserStatement.executeQuery();
 
                 if (resultSet.next()) {
                     String storedHashedPassword = resultSet.getString("password");
 
-                    if (hashPassword(password).equals(storedHashedPassword)) {
+                    if (hashPassword(user.getPassword()).equals(storedHashedPassword)) {
                         String deleteUserSql = "DELETE FROM [User] WHERE username = ?";
                         PreparedStatement deleteUserStatement = con.prepareStatement(deleteUserSql);
-                        deleteUserStatement.setString(1, username);
+                        deleteUserStatement.setString(1, user.getUsername());
 
                         int rowsAffected = deleteUserStatement.executeUpdate();
 
@@ -65,7 +67,7 @@ public class DbUser {
                         con.close();
 
                         if (rowsAffected > 0) {
-                            System.out.println("User " + username + " was succesfully eradicated");
+                            System.out.println("User " + user.getUsername() + " was succesfully eradicated");
                             return true;
                         } else {
                             System.out.println("Error occurred while trying to delete user");
@@ -84,20 +86,20 @@ public class DbUser {
         return false;
     }
 
-    public boolean verifyUserLogin(String username, String password){
+    public boolean verifyUserLogin(User user){
         Connection con = dbConnection.getConnection();
 
         if (con != null) {
             try{
                 String checkUserSql = "SELECT password FROM [User] WHERE username = ?";
                 PreparedStatement checkUserStatement = con.prepareStatement(checkUserSql);
-                checkUserStatement.setString(1, username);
+                checkUserStatement.setString(1, user.getUsername());
                 ResultSet resultSet = checkUserStatement.executeQuery();
 
                 if (resultSet.next()) {
                     String storedHashedPassword = resultSet.getString("password");
 
-                    return hashPassword(password).equals(storedHashedPassword);
+                    return hashPassword(user.getPassword()).equals(storedHashedPassword);
                 }
             }
             catch(SQLException e){
