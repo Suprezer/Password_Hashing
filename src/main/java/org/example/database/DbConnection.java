@@ -29,6 +29,7 @@ public class DbConnection {
 
             for (int i = 0; i < MAX_POOL_SIZE; i++) {
                 Connection connection = DriverManager.getConnection(url, username, password);
+                System.out.println("Connection: " + connection + " Was added to the pool");
                 connectionPool.add(connection);
             }
             System.out.println("Connection pool initialized successfully");
